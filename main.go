@@ -24,6 +24,11 @@ func main() {
 		panic(err)
 	}
 
+	// err = internal.AssureFfmpeg()
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/download", handleDownload)
 
