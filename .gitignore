@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+*.mp3
+*.part
+
+.DS_Store
