@@ -13,8 +13,15 @@ var YouTubeDownloaderExeURL = "https://yt-dl.org/latest/youtube-dl.exe"
 
 func DownloadVideo(url string) error {
 	log.Printf("Trying to extract audio from '%s'", url)
-	cmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", url)
-	err := cmd.Run()
+	var err error
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("./youtube-dl", "-x", "--audio-format", "mp3", url)
+		err = cmd.Run()
+	} else {
+		cmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", url)
+		err = cmd.Run()
+	}
+
 	return err
 }
 

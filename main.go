@@ -28,7 +28,7 @@ func main() {
 	http.HandleFunc("/download", handleDownload)
 
 	log.Print("Serving youtube-dl GUI on http://localhost:3000...")
-	err = http.ListenAndServe("0.0.0.0:3000", nil)
+	err = http.ListenAndServe("127.0.0.1:3000", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -51,10 +51,10 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 
 	videoUrl := r.URL.Query().Get("url")
 	if videoUrl == "" {
-		panic("Empty video url provided")
+		log.Println("Empty video url provided")
 	}
 	err := internal.DownloadVideo(videoUrl)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
