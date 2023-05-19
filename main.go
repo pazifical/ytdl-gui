@@ -27,8 +27,8 @@ func main() {
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/download", handleDownload)
 
-	log.Print("Listening on :3000...")
-	err = http.ListenAndServe(":3000", nil)
+	log.Print("Serving youtube-dl GUI on http://localhost:3000...")
+	err = http.ListenAndServe("0.0.0.0:3000", nil)
 	if err != nil {
 		panic(err)
 	}
