@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>yt-dlp GUI</title>
+  <style>{{ .CSS }}</style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h2 class="yt-red-txt">YouTube-DLP GUI</h2>
+    </div>
+
+    <div>
+      <label for="txt-url">Enter YouTube URL</label><br>
+      <input type="text" id="txt-url" name="txt-url" style="width: 100%;"><br>
+      <button id="btn-download">Download</button>
+    </div>
+
+    <div>
+      <i id="status">{{ .Message }}</i>
+    </div>
+
+  </div>
+
+  <script>
+    {{ .JS }}
+  </script>
+</body>
+
+</html>
