@@ -2,11 +2,12 @@ const baseUrl = "/download?url="
 
 const downloadButton = document.getElementById("btn-download");
 downloadButton.addEventListener("click", () => {
-    const videoUrl = document.getElementById("txt-url").value;
+    const element = document.getElementById("txt-url");
+    const videoUrl = element.value;
     console.log(videoUrl);
 
     fetch(baseUrl + videoUrl).then(d => console.log(d));
-    videoUrl.value = "";
+    element.value = "";
 });
 
 function setStatus() {

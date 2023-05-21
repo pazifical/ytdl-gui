@@ -77,13 +77,22 @@ func (ys *YtdlpServer) HandleDownload(w http.ResponseWriter, r *http.Request) {
 	if videoUrl == "" {
 		log.Println("Empty video url provided")
 		ys.Message = "Please enter an URL"
+		return
 	}
 
-	ys.Message = fmt.Sprintf("Started downloading '%s'", videoUrl)
-	err := internal.DownloadVideo(videoUrl)
+	videoTitle, err := internal.ExtractTitle(videoUrl)
 	if err != nil {
-		log.Println(err)
-		ys.Message = err.Error()
+		log.Printf("ERROR: %v", err)
+		ys.Message = fmt.Sprintf("ERROR: %v", err)
+		return
 	}
-	ys.Message = fmt.Sprintf("Finished downloading '%s'", videoUrl)
+
+	ys.Message = fmt.Sprintf("Started downloading '%s' from '%s'", videoTitle, videoUrl)
+	err = internal.DownloadVideo(videoUrl)
+	if err != nil {
+		log.Printf("ERROR: %v", err)
+		ys.Message = fmt.Sprintf("ERROR: %v", err)
+		return
+	}
+	ys.Message = fmt.Sprintf("Finished downloading '%s' from '%s'", videoTitle, videoUrl)
 }

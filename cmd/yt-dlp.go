@@ -18,13 +18,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	// http.HandleFunc("/", server.ServeIndex)
-	// http.HandleFunc("/download", server.HandleDownload)
-
-	// log.Printf("INFO: Visit yt-dlp GUI in your web browser via http://%s", address)
-	// err = http.ListenAndServe(address, nil)
-	// if err != nil {
-	// 	panic(err)
-	// }
 }
