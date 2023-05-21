@@ -13,19 +13,28 @@
   <div class="container">
 
     <div class="header">
-      <h2 class="yt-red-txt">YouTube-DLP GUI</h2>
+      <p><strong class="yt-red-txt">►</strong> 
+        <strong>YouTube-DLP</strong>
+        <i style="font-size: 1.2rem;"> Graphical User Interface</i>
+      </p>
     </div>
 
-    <div>
-      <label for="txt-url">Enter YouTube URL</label><br>
-      <input type="text" id="txt-url" name="txt-url" style="width: 100%;"><br>
-      <button id="btn-download">Download</button>
+    <div class="box">
+  
+      <div>
+        <label for="txt-url">
+          <strong>Enter YouTube URL:</strong>
+        </label><br>
+        <input type="text" id="txt-url" name="txt-url" style="width: 100%;"><br>
+        <button id="btn-download">Download</button>
+      </div>
+  
+      <p>
+        <strong>Status:</strong> <i id="status">{{ .Message }}</i>
+      </p>
+  
     </div>
-
-    <div>
-      <i id="status">{{ .Message }}</i>
-    </div>
-
+    
   </div>
 
   <script>

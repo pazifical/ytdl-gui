@@ -6,7 +6,7 @@ downloadButton.addEventListener("click", () => {
     console.log(videoUrl);
 
     fetch(baseUrl + videoUrl).then(d => console.log(d));
-    window.location.reload();
+    videoUrl.value = "";
 });
 
 function setStatus() {
