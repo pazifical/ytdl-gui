@@ -36,6 +36,8 @@ func assureYouTubeDownloader() error {
 func assureFfmpeg() error {
 	var err error
 	if runtime.GOOS == "windows" {
+		// TODO:
+		return nil
 		err = downloadAndExtractFfmpeg()
 	} else {
 		_, err = exec.LookPath("ffmpeg")
