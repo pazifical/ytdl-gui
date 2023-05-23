@@ -28,20 +28,29 @@ type TemplateData struct {
 }
 
 type YouTubeDownloadServer struct {
-	address string
-	mux     http.ServeMux
-	status  string
+	address       string
+	mux           http.ServeMux
+	status        string
+	downloadItems map[string]DownloadItem
+}
+
+type DownloadItem struct {
+	Url    string
+	Title  string
+	Status string
 }
 
 func NewYouTubeDownloadServer(address string) YouTubeDownloadServer {
 	backend := YouTubeDownloadServer{
-		address: address,
-		mux:     *http.NewServeMux(),
-		status:  "Everything normal",
+		address:       address,
+		mux:           *http.NewServeMux(),
+		status:        "Everything normal",
+		downloadItems: make(map[string]DownloadItem, 0),
 	}
 	backend.mux.HandleFunc("/", backend.ServeIndex)
 	backend.mux.HandleFunc("/download", backend.HandleDownloadRequest)
 	backend.mux.HandleFunc("/status", backend.GetServerStatus)
+	backend.mux.HandleFunc("/items", backend.GetDownloadItems)
 	return backend
 }
 
@@ -81,6 +90,16 @@ func (ys *YouTubeDownloadServer) GetServerStatus(w http.ResponseWriter, r *http.
 	w.Write(j)
 }
 
+// TODO: Display download items in frontend
+func (ys *YouTubeDownloadServer) GetDownloadItems(w http.ResponseWriter, r *http.Request) {
+	j, err := json.Marshal(map[string]interface{}{"items": ys.downloadItems})
+	if err != nil {
+		ys.logAndSetError(fmt.Errorf("getting download items: %w", err))
+		return
+	}
+	w.Write(j)
+}
+
 func (ys *YouTubeDownloadServer) HandleDownloadRequest(w http.ResponseWriter, r *http.Request) {
 	videoUrl := r.URL.Query().Get("url")
 	if videoUrl == "" {
@@ -94,12 +113,22 @@ func (ys *YouTubeDownloadServer) HandleDownloadRequest(w http.ResponseWriter, r 
 		return
 	}
 
+	item := DownloadItem{
+		Url:    videoUrl,
+		Title:  videoTitle,
+		Status: "Downloading",
+	}
+	ys.downloadItems[videoUrl] = item
+
 	ys.status = fmt.Sprintf("Started downloading '%s' from '%s'", videoTitle, videoUrl)
 	err = internal.DownloadVideo(videoUrl)
 	if err != nil {
 		ys.logAndSetError(fmt.Errorf("handling download: %w", err))
 		return
 	}
+	item.Status = "Finished"
+	ys.downloadItems[videoUrl] = item
+
 	ys.status = fmt.Sprintf("Finished downloading '%s' from '%s'", videoTitle, videoUrl)
 }
 
