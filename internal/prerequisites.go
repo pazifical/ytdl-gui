@@ -41,6 +41,8 @@ func assureFfmpeg() error {
 
 	var err error
 	if runtime.GOOS == "windows" {
+		// TODO: Properly implement
+		return nil
 		err = downloadAndExtractFfmpeg(ffmpegZipPath)
 	} else {
 		_, err = exec.LookPath("ffmpeg")
