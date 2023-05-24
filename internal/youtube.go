@@ -16,7 +16,7 @@ var YouTubeDownloaderExeURL = "https://github.com/yt-dlp/yt-dlp/releases/latest/
 var FfmpegDownloaderExeURL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
 
 // TODO: Download into subdirectory
-func DownloadVideo(url string) error {
+func DownloadVideo(url string, directory string) error {
 	log.Printf("Trying to extract audio from '%s'", url)
 
 	errorTemplate := "downloading video: %w"
@@ -28,7 +28,12 @@ func DownloadVideo(url string) error {
 		tool = "yt-dlp"
 	}
 
-	cmd := exec.Command(tool, "-x", "--audio-format", "mp3", url)
+	var builder strings.Builder
+	builder.WriteString(directory)
+	builder.WriteString("/")
+	builder.WriteString("%(title)s.%(ext)s")
+
+	cmd := exec.Command(tool, "-o", builder.String(), "-x", "--audio-format", "mp3", url)
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {

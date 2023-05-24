@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/TwoWaySix/ytdl-gui/internal"
 )
@@ -28,10 +29,11 @@ type TemplateData struct {
 }
 
 type YouTubeDownloadServer struct {
-	address       string
-	mux           http.ServeMux
-	status        string
-	downloadItems map[string]DownloadItem
+	address           string
+	mux               http.ServeMux
+	status            string
+	downloadItems     map[string]DownloadItem
+	downloadDirectory string
 }
 
 type DownloadItem struct {
@@ -40,25 +42,45 @@ type DownloadItem struct {
 	Status string
 }
 
-func NewYouTubeDownloadServer(address string) YouTubeDownloadServer {
+func NewYouTubeDownloadServer(address, downloadDirectory string) YouTubeDownloadServer {
 	backend := YouTubeDownloadServer{
-		address:       address,
-		mux:           *http.NewServeMux(),
-		status:        "Everything normal",
-		downloadItems: make(map[string]DownloadItem, 0),
+		address:           address,
+		mux:               *http.NewServeMux(),
+		status:            "Everything normal",
+		downloadItems:     make(map[string]DownloadItem, 0),
+		downloadDirectory: downloadDirectory,
 	}
 	backend.mux.HandleFunc("/", backend.ServeIndex)
 	backend.mux.HandleFunc("/download", backend.HandleDownloadRequest)
 	backend.mux.HandleFunc("/status", backend.GetServerStatus)
 	backend.mux.HandleFunc("/items", backend.GetDownloadItems)
+
 	return backend
 }
 
 func (ys *YouTubeDownloadServer) Start() error {
+	errorTemplate := "starting server: %w"
+
+	_, err := os.Stat(ys.downloadDirectory)
+	if errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(ys.downloadDirectory, 0750)
+		if err != nil {
+			return fmt.Errorf(errorTemplate, err)
+		}
+	} else if err != nil {
+		return fmt.Errorf(errorTemplate, err)
+	} else {
+		err = ys.importDownloadItems(ys.downloadDirectory)
+		if err != nil {
+			return fmt.Errorf(errorTemplate, err)
+		}
+		log.Printf("INFO: Imported %d downloads", len(ys.downloadItems))
+	}
+
 	log.Printf("INFO: Visit yt-dlp GUI in your web browser via http://%s", ys.address)
-	err := http.ListenAndServe(ys.address, &ys.mux)
+	err = http.ListenAndServe(ys.address, &ys.mux)
 	if err != nil {
-		return fmt.Errorf("starting server: %w", err)
+		return fmt.Errorf(errorTemplate, err)
 	}
 	return nil
 }
@@ -120,19 +142,36 @@ func (ys *YouTubeDownloadServer) HandleDownloadRequest(w http.ResponseWriter, r 
 	}
 	ys.downloadItems[videoUrl] = item
 
-	ys.status = fmt.Sprintf("Started downloading '%s' from '%s'", videoTitle, videoUrl)
-	err = internal.DownloadVideo(videoUrl)
+	err = internal.DownloadVideo(videoUrl, ys.downloadDirectory)
 	if err != nil {
 		ys.logAndSetError(fmt.Errorf("handling download: %w", err))
+		delete(ys.downloadItems, videoUrl)
 		return
 	}
 	item.Status = "Finished"
 	ys.downloadItems[videoUrl] = item
-
-	ys.status = fmt.Sprintf("Finished downloading '%s' from '%s'", videoTitle, videoUrl)
 }
 
 func (ys *YouTubeDownloadServer) logAndSetError(err error) {
 	log.Printf("ERROR: %v", err)
 	ys.status = fmt.Sprintf("ERROR: %v", err)
+}
+
+func (ys *YouTubeDownloadServer) importDownloadItems(directory string) error {
+	dirEntries, err := os.ReadDir(directory)
+	if err != nil {
+		return err
+	}
+	for _, dirEntry := range dirEntries {
+		if dirEntry.IsDir() {
+			continue
+		}
+		name := dirEntry.Name()
+		ys.downloadItems[name] = DownloadItem{
+			Title:  name,
+			Status: "Finished",
+		}
+	}
+
+	return nil
 }
