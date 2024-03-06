@@ -1,3 +1,3 @@
-module github.com/TwoWaySix/ytdl-gui
+module github.com/pazifical/ytdl-gui
 
-go 1.19
+go 1.22

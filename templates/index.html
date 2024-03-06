@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{template "head.html"}}
+
+  <body>
+    <div class="container">
+      {{template "header.html"}}
+
+      <div
+        hx-get="/api/html/status"
+        hx-swap="outerHTML"
+        hx-trigger="every 2s"
+      ></div>
+
+      <br />
+
+      {{template "form.html"}}
+
+      <br />
+
+      <div
+        hx-get="/api/html/downloads"
+        hx-swap="outerHTML"
+        hx-trigger="load"
+      ></div>
+    </div>
+
+    {{template "scripts.html"}}
+  </body>
+</html>

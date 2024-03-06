@@ -11,9 +11,9 @@ import (
 	"strings"
 )
 
-var YouTubeDownloaderExeURL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
+var youTubeDownloaderExeURL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
 
-var FfmpegDownloaderExeURL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
+var ffmpegDownloaderExeURL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
 
 // TODO: Download into subdirectory
 func DownloadVideo(url string, directory string) error {

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,7 +12,7 @@ import (
 	"runtime"
 )
 
-func AssurePrerequisites() error {
+func AssurePrerequisites(downloadDirectory string) error {
 	err := assureYouTubeDownloader()
 	if err != nil {
 		return fmt.Errorf("assuring prerequisites: %w", err)
@@ -19,6 +20,24 @@ func AssurePrerequisites() error {
 	err = assureFfmpeg()
 	if err != nil {
 		return fmt.Errorf("assuring prerequisites: %w", err)
+	}
+
+	err = assureDownloadDirectory(downloadDirectory)
+	if err != nil {
+		return fmt.Errorf("assuring prerequisites: %w", err)
+	}
+	return nil
+}
+
+func assureDownloadDirectory(directory string) error {
+	_, err := os.Stat(directory)
+	if errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(directory, 0750)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
 	}
 	return nil
 }
@@ -55,8 +74,8 @@ func assureFfmpeg() error {
 
 func downloadYtdlExe() error {
 	errorTemplate := "downloading yt-dlp: %w"
-	log.Printf("INFO: Downloading '%s'", YouTubeDownloaderExeURL)
-	response, err := http.Get(YouTubeDownloaderExeURL)
+	log.Printf("INFO: Downloading '%s'", youTubeDownloaderExeURL)
+	response, err := http.Get(youTubeDownloaderExeURL)
 	if err != nil {
 		return fmt.Errorf(errorTemplate, err)
 	}
@@ -99,8 +118,8 @@ func downloadAndExtractFfmpeg(ffmpegZipPath string) error {
 func downloadFfmpeg(ffmpegZipPath string) error {
 	errorTemplate := "downloading ffmpeg: %w"
 
-	log.Printf("INFO: Downloading '%s'", FfmpegDownloaderExeURL)
-	response, err := http.Get(YouTubeDownloaderExeURL)
+	log.Printf("INFO: Downloading '%s'", ffmpegDownloaderExeURL)
+	response, err := http.Get(youTubeDownloaderExeURL)
 	if err != nil {
 		return fmt.Errorf(errorTemplate, err)
 	}
